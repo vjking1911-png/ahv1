@@ -76,9 +76,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val allGateSubjects = repository.allGateSubjects.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val allGateTopics = repository.allGateTopics.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // 6. ESE UPSC Tracker
+    // 6. ESE UPSC Tracker (Electronics & Telecommunication)
+    val esePapers = repository.esePapers.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _selectedEsePaperId = MutableStateFlow("ESE_ET_P1")
+    val selectedEsePaperId = _selectedEsePaperId.asStateFlow()
+    val allEseSubjects = repository.allEseSubjects.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val eseSections = repository.eseSections.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    private val _selectedEseStage = MutableStateFlow("PRELIMS_GS")
+    private val _selectedEseStage = MutableStateFlow("PRELIMS_TECH")
     val selectedEseStage = _selectedEseStage.asStateFlow()
     val allEseTopics = repository.allEseTopics.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -112,6 +116,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val scratch = database.academicDao().getAllScratchpads().firstOrNull()
             if (scratch.isNullOrEmpty()) {
                 InitialDataSeeder.seedInitialData(database.academicDao())
+            } else {
+                val esePaperList = database.academicDao().getEsePapers().firstOrNull()
+                if (esePaperList.isNullOrEmpty()) {
+                    InitialDataSeeder.seedEseEtData(database.academicDao())
+                }
             }
         }
     }
@@ -456,7 +465,142 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ESE
+    // 6. ESE UPSC Tracker (Electronics & Telecommunication)
+    fun setEsePaper(paperId: String) {
+        _selectedEsePaperId.value = paperId
+    }
+
+    fun addEsePaper(code: String, name: String, marks: Int, target: Int = 210, stage: String = "PRELIMS_TECH") {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newPaper = EsePaperEntity(
+                id = UUID.randomUUID().toString(),
+                paperCode = code,
+                paperName = name,
+                stageType = stage,
+                totalMarks = marks,
+                targetScore = target,
+                displayOrder = esePapers.value.size + 1
+            )
+            repository.insertEsePaper(newPaper)
+            _selectedEsePaperId.value = newPaper.id
+        }
+    }
+
+    fun updateEsePaper(paper: EsePaperEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEsePaper(paper)
+        }
+    }
+
+    fun deleteEsePaper(paperId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteEsePaper(paperId)
+            val remaining = esePapers.value.filter { it.id != paperId }
+            _selectedEsePaperId.value = remaining.firstOrNull()?.id ?: ""
+        }
+    }
+
+    fun addEseSubject(paperId: String, name: String, code: String, marks: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertEseSubject(
+                EseSubjectEntity(
+                    paperId = paperId,
+                    subjectName = name,
+                    subjectCode = code,
+                    weightageMarks = marks,
+                    displayOrder = allEseSubjects.value.filter { it.paperId == paperId }.size + 1
+                )
+            )
+        }
+    }
+
+    fun updateEseSubject(subject: EseSubjectEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEseSubject(subject)
+        }
+    }
+
+    fun deleteEseSubject(subjectId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteEseSubject(subjectId)
+        }
+    }
+
+    fun addEseTopic(
+        paperId: String,
+        subjectId: String = "",
+        category: String,
+        topicName: String,
+        weightage: String = "MEDIUM",
+        estimatedHours: Int = 4,
+        confidenceLevel: Int = 50,
+        pyqs: Int = 0
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertEseTopic(
+                EseTopicEntity(
+                    paperId = paperId,
+                    subjectId = subjectId,
+                    subjectCategory = category,
+                    topicName = topicName,
+                    weightage = weightage,
+                    estimatedHours = estimatedHours,
+                    confidenceLevel = confidenceLevel,
+                    pyqSolvedCount = pyqs,
+                    status = "TODO"
+                )
+            )
+        }
+    }
+
+    fun updateEseTopic(topic: EseTopicEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEseTopic(topic)
+        }
+    }
+
+    fun deleteEseTopic(topicId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteEseTopic(topicId)
+        }
+    }
+
+    fun updateEseTopicStatus(topicId: String, status: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEseTopicStatus(topicId, status)
+        }
+    }
+
+    fun toggleEseTopicStatus(topic: EseTopicEntity) {
+        val nextStatus = when (topic.status) {
+            "TODO" -> "DOING"
+            "DOING" -> "REVISING"
+            "REVISING" -> "DONE"
+            else -> "TODO"
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEseTopic(topic.copy(status = nextStatus))
+        }
+    }
+
+    fun incrementEseRevision(topicId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.incrementEseRevision(topicId)
+        }
+    }
+
+    fun incrementEsePyq(topicId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.incrementEsePyq(topicId)
+        }
+    }
+
+    fun updateEseConfidence(topicId: String, confidence: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEseConfidence(topicId, confidence)
+        }
+    }
+
     fun updateEseSection(sectionId: String, newTitle: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val existing = eseSections.value.find { it.id == sectionId }
@@ -466,22 +610,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun incrementEsePyq(topicId: String) {
-        viewModelScope.launch(Dispatchers.IO) { repository.incrementEsePyq(topicId) }
-    }
-
-    fun toggleEseTopicStatus(topic: EseTopicEntity) {
-        val newStatus = if (topic.status == "DONE") "TODO" else "DONE"
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateEseTopic(topic.copy(status = newStatus))
-        }
-    }
-
     // Certificates
-    fun addCertificate(name: String, status: String, targetDate: String, issuer: String, tags: String) {
+    fun addCertificate(name: String, status: String, targetDate: String, issuer: String, tags: String, customFilePath: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             val filePath = if (status == "OWNED") {
-                "/data/user/0/com.aistudio.academichub.vkhdza/files/certificates/${name.replace(" ", "_").lowercase()}.pdf"
+                customFilePath ?: ""
             } else null
             repository.insertCertificate(
                 CertificateEntity(
@@ -494,6 +627,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
             )
         }
+    }
+
+    fun updateCertificateFilePath(id: String, filePath: String) {
+        viewModelScope.launch(Dispatchers.IO) { repository.updateCertificateFilePath(id, filePath) }
     }
 
     fun deleteCertificate(id: String) {
@@ -519,10 +656,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addTimetableSlot(type: String, start: String, end: String, title: String) {
+    fun addTimetableSlot(type: String, start: String, end: String, title: String, moduleId: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertTimetableConfig(
-                TimetableConfigEntity(scheduleType = type, timeSlotStart = start, timeSlotEnd = end, slotTitle = title)
+                TimetableConfigEntity(
+                    scheduleType = type,
+                    timeSlotStart = start,
+                    timeSlotEnd = end,
+                    slotTitle = title,
+                    associatedModuleId = moduleId
+                )
             )
         }
     }
@@ -536,6 +679,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateTimetableSlot(slot: TimetableConfigEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateTimetableConfig(slot)
+        }
+    }
+
+    fun updateTimetableSlotDetails(slotId: String, title: String, start: String, end: String, moduleId: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val existing = timetableConfigs.value.find { it.id == slotId }
+            if (existing != null) {
+                repository.updateTimetableConfig(
+                    existing.copy(
+                        slotTitle = title,
+                        timeSlotStart = start,
+                        timeSlotEnd = end,
+                        associatedModuleId = moduleId
+                    )
+                )
+            }
         }
     }
 
@@ -572,20 +731,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Milestones & Alert Engine
     fun addMilestone(title: String, desc: String, targetEpoch: Long, collegeProfile: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertMilestone(
-                AcademicMilestoneEntity(
-                    eventTitle = title,
-                    eventDescription = desc,
-                    targetTimestamp = targetEpoch,
-                    alertTriggeredFlag = false,
-                    collegeProfileId = collegeProfile
-                )
+            val milestone = AcademicMilestoneEntity(
+                eventTitle = title,
+                eventDescription = desc,
+                targetTimestamp = targetEpoch,
+                alertTriggeredFlag = false,
+                collegeProfileId = collegeProfile
             )
+            repository.insertMilestone(milestone)
+            AcademicAlertReceiver.scheduleMilestoneAlert(getApplication(), milestone)
         }
     }
 
     fun deleteMilestone(id: String) {
-        viewModelScope.launch(Dispatchers.IO) { repository.deleteMilestone(id) }
+        viewModelScope.launch(Dispatchers.IO) {
+            AcademicAlertReceiver.cancelMilestoneAlert(getApplication(), id)
+            repository.deleteMilestone(id)
+        }
     }
 
     fun triggerTestAlert(milestone: AcademicMilestoneEntity) {

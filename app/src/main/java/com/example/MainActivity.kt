@@ -226,7 +226,7 @@ fun AcademicHubApp(viewModel: MainViewModel) {
                         onClick = { navigateToRoute(Screen.GateTracker.route) }
                     )
                     DrawerItem(
-                        item = DrawerItemData(Screen.EseTracker, Icons.Default.Gavel, "6. UPSC ESE Tracker", "Stages 1 & 2 + PYQs Solved"),
+                        item = DrawerItemData(Screen.EseTracker, Icons.Default.Gavel, "6. UPSC ESE Tracker", "E&T Syllabus & PYQ Mastery", badge = "UPSC"),
                         isSelected = currentRoute == Screen.EseTracker.route,
                         onClick = { navigateToRoute(Screen.EseTracker.route) }
                     )

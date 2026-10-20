@@ -131,8 +131,30 @@ data class GateTopicEntity(
 )
 
 // ==========================================
-// 6. ESE UPSC Syllabus Tracker
+// 6. ESE UPSC Syllabus Tracker (Electronics & Telecommunication)
 // ==========================================
+@Entity(tableName = "ese_papers")
+data class EsePaperEntity(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val paperCode: String, // e.g. "ET-1", "ET-2", "GS-EA", "MAINS-ET"
+    val paperName: String,
+    val stageType: String = "PRELIMS_TECH", // PRELIMS_GS, PRELIMS_TECH, MAINS_TECH
+    val totalMarks: Int = 300,
+    val targetScore: Int = 210,
+    val examDate: String = "",
+    val displayOrder: Int = 0
+)
+
+@Entity(tableName = "ese_subjects")
+data class EseSubjectEntity(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val paperId: String,
+    val subjectName: String,
+    val subjectCode: String = "",
+    val weightageMarks: Int = 30,
+    val displayOrder: Int = 0
+)
+
 @Entity(tableName = "ese_sections")
 data class EseSectionEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
@@ -143,11 +165,18 @@ data class EseSectionEntity(
 @Entity(tableName = "ese_topics")
 data class EseTopicEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    val sectionId: String,
+    val paperId: String = "",
+    val subjectId: String = "",
+    val sectionId: String = "",
+    val subjectCategory: String = "",
     val topicName: String,
-    val status: String = "TODO", // TODO, DONE
+    val status: String = "TODO", // TODO, DOING, REVISING, DONE
     val pyqSolvedCount: Int = 0,
-    val notesAttachedFlag: Boolean = false
+    val notesAttachedFlag: Boolean = false,
+    val revisionCount: Int = 0,
+    val confidenceLevel: Int = 50, // 1 to 100%
+    val weightage: String = "MEDIUM", // EASY, MEDIUM, HARD
+    val estimatedHours: Int = 4
 )
 
 // ==========================================
@@ -254,5 +283,6 @@ data class ResumeProfileEntity(
     val educationJson: String = "",
     val projectsJson: String = "",
     val skillsJson: String = "",
-    val experienceJson: String = ""
+    val experienceJson: String = "",
+    val photoUri: String = ""
 )

@@ -497,7 +497,7 @@ fun DashboardScreen(
                     ModuleNavData("2 & 3. Dual Syllabus", "Degree 1 & Degree 2 Workload", Icons.Default.MenuBook, Screen.DualSyllabus.route, SecondaryCyan),
                     ModuleNavData("4. CGPA Formula Engine", "Dynamic tokenizing sandbox", Icons.Default.Calculate, Screen.ResultsFormula.route, AccentGold),
                     ModuleNavData("5. Triple-Paper GATE", "Revision loop + confidence slider", Icons.Default.FilterFrames, Screen.GateTracker.route, PrimaryIndigoDark),
-                    ModuleNavData("6. UPSC ESE Tracker", "Stage 1 & 2 + PYQs solved", Icons.Default.Gavel, Screen.EseTracker.route, WarningAmber),
+                    ModuleNavData("6. UPSC ESE Tracker", "E&T Syllabus & PYQs Solved", Icons.Default.Gavel, Screen.EseTracker.route, WarningAmber),
                     ModuleNavData("7. Certificates Hub", "Digital paper vault & wishlist", Icons.Default.Verified, Screen.Certificates.route, SuccessEmerald),
                     ModuleNavData("8. Dynamic Timetable", "Holiday vs working day slots", Icons.Default.Schedule, Screen.TimetableHub.route, SecondaryCyanDark),
                     ModuleNavData("9. Priority Notepad", "Markdown checklist anchor", Icons.Default.Checklist, Screen.Dashboard.route, AccentGold),

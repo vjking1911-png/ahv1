@@ -189,8 +189,44 @@ interface AcademicDao {
     suspend fun updateGateConfidence(topicId: String, confidence: Int)
 
     // ==========================================
-    // 6. ESE UPSC Syllabus Tracker
+    // 6. ESE UPSC Syllabus Tracker (Electronics & Telecommunication)
     // ==========================================
+    @Query("SELECT * FROM ese_papers ORDER BY displayOrder ASC")
+    fun getEsePapers(): Flow<List<EsePaperEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEsePaper(paper: EsePaperEntity)
+
+    @Update
+    suspend fun updateEsePaper(paper: EsePaperEntity)
+
+    @Query("DELETE FROM ese_papers WHERE id = :id")
+    suspend fun deleteEsePaper(id: String)
+
+    @Query("DELETE FROM ese_topics WHERE paperId = :paperId")
+    suspend fun deleteEseTopicsForPaperId(paperId: String)
+
+    @Query("DELETE FROM ese_subjects WHERE paperId = :paperId")
+    suspend fun deleteEseSubjectsForPaperId(paperId: String)
+
+    @Query("SELECT * FROM ese_subjects WHERE paperId = :paperId ORDER BY displayOrder ASC")
+    fun getEseSubjectsForPaper(paperId: String): Flow<List<EseSubjectEntity>>
+
+    @Query("SELECT * FROM ese_subjects ORDER BY displayOrder ASC")
+    fun getAllEseSubjects(): Flow<List<EseSubjectEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEseSubject(subject: EseSubjectEntity)
+
+    @Update
+    suspend fun updateEseSubject(subject: EseSubjectEntity)
+
+    @Query("DELETE FROM ese_subjects WHERE id = :id")
+    suspend fun deleteEseSubject(id: String)
+
+    @Query("DELETE FROM ese_topics WHERE subjectId = :subjectId")
+    suspend fun deleteEseTopicsForSubjectId(subjectId: String)
+
     @Query("SELECT * FROM ese_sections")
     fun getEseSections(): Flow<List<EseSectionEntity>>
 
@@ -203,6 +239,12 @@ interface AcademicDao {
     @Query("SELECT * FROM ese_topics WHERE sectionId = :sectionId")
     fun getEseTopicsForSection(sectionId: String): Flow<List<EseTopicEntity>>
 
+    @Query("SELECT * FROM ese_topics WHERE paperId = :paperId")
+    fun getEseTopicsForPaper(paperId: String): Flow<List<EseTopicEntity>>
+
+    @Query("SELECT * FROM ese_topics WHERE subjectId = :subjectId")
+    fun getEseTopicsForSubject(subjectId: String): Flow<List<EseTopicEntity>>
+
     @Query("SELECT * FROM ese_topics")
     fun getAllEseTopics(): Flow<List<EseTopicEntity>>
 
@@ -212,8 +254,20 @@ interface AcademicDao {
     @Update
     suspend fun updateEseTopic(topic: EseTopicEntity)
 
+    @Query("DELETE FROM ese_topics WHERE id = :id")
+    suspend fun deleteEseTopic(id: String)
+
+    @Query("UPDATE ese_topics SET status = :status WHERE id = :topicId")
+    suspend fun updateEseTopicStatus(topicId: String, status: String)
+
     @Query("UPDATE ese_topics SET pyqSolvedCount = pyqSolvedCount + 1 WHERE id = :topicId")
     suspend fun incrementEsePyq(topicId: String)
+
+    @Query("UPDATE ese_topics SET revisionCount = revisionCount + 1 WHERE id = :topicId")
+    suspend fun incrementEseRevision(topicId: String)
+
+    @Query("UPDATE ese_topics SET confidenceLevel = :confidence WHERE id = :topicId")
+    suspend fun updateEseConfidence(topicId: String, confidence: Int)
 
     // ==========================================
     // 7. Digital Certificates Hub
@@ -226,6 +280,9 @@ interface AcademicDao {
 
     @Query("DELETE FROM certificates WHERE id = :id")
     suspend fun deleteCertificate(id: String)
+
+    @Query("UPDATE certificates SET filePath = :filePath WHERE id = :id")
+    suspend fun updateCertificateFilePath(id: String, filePath: String)
 
     // ==========================================
     // 8. Holiday vs. Working Day Dynamic Timetable

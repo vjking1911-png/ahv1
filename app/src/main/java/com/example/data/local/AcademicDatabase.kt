@@ -32,9 +32,11 @@ import kotlinx.coroutines.launch
         CareerOptionEntity::class,
         ResumeProfileEntity::class,
         SubjectExamEntity::class,
-        GateSubjectEntity::class
+        GateSubjectEntity::class,
+        EsePaperEntity::class,
+        EseSubjectEntity::class
     ],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 abstract class AcademicDatabase : RoomDatabase() {

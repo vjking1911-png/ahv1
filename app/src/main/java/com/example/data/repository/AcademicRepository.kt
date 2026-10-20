@@ -83,20 +83,45 @@ class AcademicRepository(private val dao: AcademicDao) {
     suspend fun incrementGateRevision(topicId: String) = dao.incrementGateRevision(topicId)
     suspend fun updateGateConfidence(topicId: String, confidence: Int) = dao.updateGateConfidence(topicId, confidence)
 
-    // 6. ESE UPSC Tracker
+    // 6. ESE UPSC Tracker (Electronics & Telecommunication)
+    val esePapers: Flow<List<EsePaperEntity>> = dao.getEsePapers()
+    suspend fun insertEsePaper(paper: EsePaperEntity) = dao.insertEsePaper(paper)
+    suspend fun updateEsePaper(paper: EsePaperEntity) = dao.updateEsePaper(paper)
+    suspend fun deleteEsePaper(id: String) {
+        dao.deleteEsePaper(id)
+        dao.deleteEseSubjectsForPaperId(id)
+        dao.deleteEseTopicsForPaperId(id)
+    }
+
+    val allEseSubjects: Flow<List<EseSubjectEntity>> = dao.getAllEseSubjects()
+    fun getEseSubjectsForPaper(paperId: String): Flow<List<EseSubjectEntity>> = dao.getEseSubjectsForPaper(paperId)
+    suspend fun insertEseSubject(subject: EseSubjectEntity) = dao.insertEseSubject(subject)
+    suspend fun updateEseSubject(subject: EseSubjectEntity) = dao.updateEseSubject(subject)
+    suspend fun deleteEseSubject(id: String) {
+        dao.deleteEseSubject(id)
+        dao.deleteEseTopicsForSubjectId(id)
+    }
+
     val eseSections: Flow<List<EseSectionEntity>> = dao.getEseSections()
     suspend fun insertEseSection(section: EseSectionEntity) = dao.insertEseSection(section)
     suspend fun updateEseSection(section: EseSectionEntity) = dao.updateEseSection(section)
     val allEseTopics: Flow<List<EseTopicEntity>> = dao.getAllEseTopics()
     fun getEseTopicsForSection(sectionId: String): Flow<List<EseTopicEntity>> = dao.getEseTopicsForSection(sectionId)
+    fun getEseTopicsForPaper(paperId: String): Flow<List<EseTopicEntity>> = dao.getEseTopicsForPaper(paperId)
+    fun getEseTopicsForSubject(subjectId: String): Flow<List<EseTopicEntity>> = dao.getEseTopicsForSubject(subjectId)
     suspend fun insertEseTopic(topic: EseTopicEntity) = dao.insertEseTopic(topic)
     suspend fun updateEseTopic(topic: EseTopicEntity) = dao.updateEseTopic(topic)
+    suspend fun deleteEseTopic(id: String) = dao.deleteEseTopic(id)
+    suspend fun updateEseTopicStatus(topicId: String, status: String) = dao.updateEseTopicStatus(topicId, status)
     suspend fun incrementEsePyq(topicId: String) = dao.incrementEsePyq(topicId)
+    suspend fun incrementEseRevision(topicId: String) = dao.incrementEseRevision(topicId)
+    suspend fun updateEseConfidence(topicId: String, confidence: Int) = dao.updateEseConfidence(topicId, confidence)
 
     // 7. Certificates Hub
     val allCertificates: Flow<List<CertificateEntity>> = dao.getAllCertificates()
     suspend fun insertCertificate(cert: CertificateEntity) = dao.insertCertificate(cert)
     suspend fun deleteCertificate(id: String) = dao.deleteCertificate(id)
+    suspend fun updateCertificateFilePath(id: String, filePath: String) = dao.updateCertificateFilePath(id, filePath)
 
     // 8. Timetable
     val allTimetableConfigs: Flow<List<TimetableConfigEntity>> = dao.getAllTimetableConfigs()

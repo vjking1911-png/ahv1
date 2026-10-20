@@ -24,6 +24,54 @@ class AcademicAlertReceiver : BroadcastReceiver() {
         const val CHANNEL_ID = "academic_hub_alerts"
         const val CHANNEL_NAME = "Academic Hub Milestones & Deadlines"
 
+        fun scheduleMilestoneAlert(context: Context, milestone: com.example.data.model.AcademicMilestoneEntity) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? android.app.AlarmManager ?: return
+            val intent = Intent(context, AcademicAlertReceiver::class.java).apply {
+                putExtra("EVENT_TITLE", "⚠️ Tomorrow: ${milestone.eventTitle}")
+                putExtra("EVENT_DESCRIPTION", "Academic Milestone deadline in 24 hours: ${milestone.eventDescription.ifBlank { milestone.collegeProfileId }}")
+                putExtra("MILESTONE_ID", milestone.id)
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                milestone.id.hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            // Alert pops up exactly 1 day (24 hours) before the event date
+            val oneDayBefore = milestone.targetTimestamp - (24 * 60 * 60 * 1000L)
+            val now = System.currentTimeMillis()
+            val triggerTime = when {
+                oneDayBefore > now -> oneDayBefore
+                milestone.targetTimestamp > now -> now + 5000L // If event is less than 24h away, notify shortly
+                else -> return // Already past
+            }
+
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                } else {
+                    alarmManager.set(android.app.AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                }
+            } catch (e: Exception) {
+                // Ignore security or permission restrictions gracefully
+            }
+        }
+
+        fun cancelMilestoneAlert(context: Context, milestoneId: String) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? android.app.AlarmManager ?: return
+            val intent = Intent(context, AcademicAlertReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                milestoneId.hashCode(),
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent)
+            }
+        }
+
         fun showNotification(context: Context, title: String, description: String) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
