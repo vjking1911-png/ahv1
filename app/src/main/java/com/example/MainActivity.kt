@@ -201,7 +201,7 @@ fun AcademicHubApp(viewModel: MainViewModel) {
                         onClick = { navigateToRoute(Screen.Dashboard.route) }
                     )
                     DrawerItem(
-                        item = DrawerItemData(Screen.Expenses, Icons.Default.ReceiptLong, "1. Academic Expenses", "ROI Rating & Semesters", badge = "ROI"),
+                        item = DrawerItemData(Screen.Expenses, Icons.Default.ReceiptLong, "1. Academic Expenses", "Categories & ROI Rating", badge = "₹ Spend"),
                         isSelected = currentRoute == Screen.Expenses.route,
                         onClick = { navigateToRoute(Screen.Expenses.route) }
                     )

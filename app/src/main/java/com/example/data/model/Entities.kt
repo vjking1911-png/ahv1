@@ -12,12 +12,12 @@ data class ExpenseEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val title: String,
     val amount: Double,
-    val category: String, // BOOKS, SUBSCRIPTION, FEES, STATIONERY, EXAM_REGISTRATION, OTHER
+    val category: String, // Academic, Certification, Skills, Exam Fees, Instruments & Devices, Other
     val paymentType: String, // ONETIME, RECURRING
     val timestamp: Long = System.currentTimeMillis(),
     val roiRating: Int? = null, // 1 to 5 Academic Impact Score / ROI rating
     val collegeProfileId: String? = null, // Links to COLLEGE_1 or COLLEGE_2
-    val semesterTag: String = "Semester 1"
+    val semesterTag: String = "Academic"
 )
 
 // ==========================================
@@ -59,7 +59,8 @@ data class DegreeProfileEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val degreeName: String,
     val institutionName: String,
-    val calculationFormulaString: String = "(CGPA * 9.5)" // e.g. (CGPA * 9.5) or (CGPA * 10) + 5
+    val calculationFormulaString: String = "(CGPA * 9.5)", // e.g. (CGPA * 9.5) or (CGPA * 10) + 5
+    val totalTargetCredits: Int = 160
 )
 
 @Entity(tableName = "semester_grades")
@@ -67,8 +68,8 @@ data class SemesterGradeEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val degreeProfileId: String,
     val semesterNumber: Int,
-    val sgpa: Double,
-    val totalCreditsEarned: Int
+    val sgpa: Double = 0.0,
+    val totalCreditsEarned: Int = 0
 )
 
 @Entity(tableName = "subject_marks")
@@ -77,10 +78,21 @@ data class SubjectMarkEntity(
     val degreeProfileId: String,
     val semesterNumber: Int,
     val subjectName: String,
-    val marksObtained: Double,
+    val marksObtained: Double = 0.0,
     val maxMarks: Double = 100.0,
-    val gradePoint: Double = 9.0,
-    val credits: Int = 4
+    val gradePoint: Double = 0.0,
+    val credits: Int = 4,
+    val subjectCode: String = ""
+)
+
+@Entity(tableName = "subject_exams")
+data class SubjectExamEntity(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val subjectMarkId: String,
+    val examName: String,
+    val weightagePercent: Double, // What percentage of final score does this exam contribute (e.g. 30.0 for 30%)
+    val marksObtained: Double, // How much marks gotten in that exam (e.g. 42.0)
+    val maxMarks: Double = 50.0 // Maximum marks in this exam (e.g. 50.0)
 )
 
 // ==========================================
@@ -93,17 +105,29 @@ data class GatePaperEntity(
     val paperName: String
 )
 
+@Entity(tableName = "gate_subjects")
+data class GateSubjectEntity(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val paperId: String,
+    val subjectName: String,
+    val subjectCode: String = "",
+    val weightageMarks: Int = 10
+)
+
 @Entity(tableName = "gate_topics")
 data class GateTopicEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val paperId: String,
-    val subjectCategory: String, // e.g. Operating Systems, Machine Learning, Linear Algebra
+    val subjectCategory: String = "", // e.g. Operating Systems, Machine Learning, Linear Algebra
     val topicName: String,
     val status: String = "TODO", // TODO, DOING, REVISING, DONE
     val startDate: String = "",
     val endDate: String = "",
     val revisionCount: Int = 0,
-    val confidenceLevel: Int = 50 // 1 to 100%
+    val confidenceLevel: Int = 50, // 1 to 100%
+    val weightage: String = "MEDIUM", // EASY, MEDIUM, HARD
+    val estimatedHours: Int = 4,
+    val subjectId: String = ""
 )
 
 // ==========================================

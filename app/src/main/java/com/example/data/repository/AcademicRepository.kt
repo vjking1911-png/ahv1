@@ -36,9 +36,24 @@ class AcademicRepository(private val dao: AcademicDao) {
     suspend fun updateDegreeProfile(profile: DegreeProfileEntity) = dao.updateDegreeProfile(profile)
     fun getSemesterGrades(profileId: String): Flow<List<SemesterGradeEntity>> = dao.getSemesterGrades(profileId)
     suspend fun insertSemesterGrade(grade: SemesterGradeEntity) = dao.insertSemesterGrade(grade)
+    suspend fun deleteSemesterGrade(profileId: String, semNumber: Int) {
+        dao.deleteSubjectMarksForSemester(profileId, semNumber)
+        dao.deleteSemesterGrade(profileId, semNumber)
+    }
     fun getSubjectMarks(profileId: String, semNumber: Int): Flow<List<SubjectMarkEntity>> = dao.getSubjectMarks(profileId, semNumber)
     fun getAllSubjectMarks(profileId: String): Flow<List<SubjectMarkEntity>> = dao.getAllSubjectMarksForProfile(profileId)
     suspend fun insertSubjectMark(mark: SubjectMarkEntity) = dao.insertSubjectMark(mark)
+    suspend fun updateSubjectMark(mark: SubjectMarkEntity) = dao.updateSubjectMark(mark)
+    suspend fun deleteSubjectMark(id: String) {
+        dao.deleteExamsForSubject(id)
+        dao.deleteSubjectMark(id)
+    }
+
+    val allSubjectExams: Flow<List<SubjectExamEntity>> = dao.getAllSubjectExams()
+    fun getSubjectExams(subjectId: String): Flow<List<SubjectExamEntity>> = dao.getSubjectExams(subjectId)
+    suspend fun insertSubjectExam(exam: SubjectExamEntity) = dao.insertSubjectExam(exam)
+    suspend fun updateSubjectExam(exam: SubjectExamEntity) = dao.updateSubjectExam(exam)
+    suspend fun deleteSubjectExam(id: String) = dao.deleteSubjectExam(id)
 
     // 5. Triple-Paper GATE Tracker
     val gatePapers: Flow<List<GatePaperEntity>> = dao.getGatePapers()
@@ -49,11 +64,22 @@ class AcademicRepository(private val dao: AcademicDao) {
         dao.deleteGatePaper(id)
     }
 
+    val allGateSubjects: Flow<List<GateSubjectEntity>> = dao.getAllGateSubjects()
+    fun getGateSubjectsForPaper(paperId: String): Flow<List<GateSubjectEntity>> = dao.getGateSubjectsForPaper(paperId)
+    suspend fun insertGateSubject(subject: GateSubjectEntity) = dao.insertGateSubject(subject)
+    suspend fun updateGateSubject(subject: GateSubjectEntity) = dao.updateGateSubject(subject)
+    suspend fun deleteGateSubject(id: String) {
+        dao.deleteGateTopicsForSubjectId(id)
+        dao.deleteGateSubject(id)
+    }
+
     val allGateTopics: Flow<List<GateTopicEntity>> = dao.getAllGateTopics()
     fun getGateTopicsForPaper(paperId: String): Flow<List<GateTopicEntity>> = dao.getGateTopicsForPaper(paperId)
+    fun getGateTopicsForSubject(subjectId: String): Flow<List<GateTopicEntity>> = dao.getGateTopicsForSubject(subjectId)
     suspend fun insertGateTopic(topic: GateTopicEntity) = dao.insertGateTopic(topic)
     suspend fun updateGateTopic(topic: GateTopicEntity) = dao.updateGateTopic(topic)
     suspend fun deleteGateTopic(id: String) = dao.deleteGateTopic(id)
+    suspend fun updateGateTopicStatus(topicId: String, status: String) = dao.updateGateTopicStatus(topicId, status)
     suspend fun incrementGateRevision(topicId: String) = dao.incrementGateRevision(topicId)
     suspend fun updateGateConfidence(topicId: String, confidence: Int) = dao.updateGateConfidence(topicId, confidence)
 

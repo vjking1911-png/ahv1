@@ -16,52 +16,78 @@ object InitialDataSeeder {
             ExpenseEntity(
                 id = UUID.randomUUID().toString(),
                 title = "Texas Instruments Scientific Graphing Calculator",
-                amount = 129.99,
-                category = "STATIONERY",
+                amount = 3499.00,
+                category = "Instruments & Devices",
                 paymentType = "ONETIME",
                 timestamp = System.currentTimeMillis() - 86400000L * 12,
                 roiRating = 5,
                 collegeProfileId = "COLLEGE_1",
-                semesterTag = "Semester 3"
+                semesterTag = "Instruments & Devices"
             )
         )
         dao.insertExpense(
             ExpenseEntity(
                 id = UUID.randomUUID().toString(),
-                title = "O'Reilly Safari Online Academic Subscription",
-                amount = 49.00,
-                category = "SUBSCRIPTION",
-                paymentType = "RECURRING",
-                timestamp = System.currentTimeMillis() - 86400000L * 5,
+                title = "Operating System Concepts - Silberschatz Edition",
+                amount = 1850.00,
+                category = "Academic",
+                paymentType = "ONETIME",
+                timestamp = System.currentTimeMillis() - 86400000L * 25,
                 roiRating = 4,
+                collegeProfileId = "COLLEGE_1",
+                semesterTag = "Academic"
+            )
+        )
+        dao.insertExpense(
+            ExpenseEntity(
+                id = UUID.randomUUID().toString(),
+                title = "AWS Cloud Solutions Architect Exam Voucher",
+                amount = 9800.00,
+                category = "Certification",
+                paymentType = "ONETIME",
+                timestamp = System.currentTimeMillis() - 86400000L * 18,
+                roiRating = 5,
+                collegeProfileId = "GENERAL",
+                semesterTag = "Certification"
+            )
+        )
+        dao.insertExpense(
+            ExpenseEntity(
+                id = UUID.randomUUID().toString(),
+                title = "Distributed Systems & Cloud Architecture Bootcamp",
+                amount = 4500.00,
+                category = "Skills",
+                paymentType = "ONETIME",
+                timestamp = System.currentTimeMillis() - 86400000L * 8,
+                roiRating = 5,
                 collegeProfileId = "COLLEGE_2",
-                semesterTag = "Semester 3"
+                semesterTag = "Skills"
             )
         )
         dao.insertExpense(
             ExpenseEntity(
                 id = UUID.randomUUID().toString(),
                 title = "GATE CS & DA Official Test Series Registration",
-                amount = 35.00,
-                category = "EXAM_REGISTRATION",
+                amount = 2200.00,
+                category = "Exam Fees",
                 paymentType = "ONETIME",
                 timestamp = System.currentTimeMillis() - 86400000L * 2,
                 roiRating = 5,
                 collegeProfileId = "GENERAL",
-                semesterTag = "Semester 4"
+                semesterTag = "Exam Fees"
             )
         )
         dao.insertExpense(
             ExpenseEntity(
                 id = UUID.randomUUID().toString(),
-                title = "Operating System Concepts - Silberschatz Hardcover",
-                amount = 85.50,
-                category = "BOOKS",
-                paymentType = "ONETIME",
-                timestamp = System.currentTimeMillis() - 86400000L * 25,
+                title = "IEEE Student Membership & Digital Library",
+                amount = 1500.00,
+                category = "Other",
+                paymentType = "RECURRING",
+                timestamp = System.currentTimeMillis() - 86400000L * 5,
                 roiRating = 4,
-                collegeProfileId = "COLLEGE_1",
-                semesterTag = "Semester 3"
+                collegeProfileId = "GENERAL",
+                semesterTag = "Other"
             )
         )
 
@@ -116,19 +142,71 @@ object InitialDataSeeder {
         val degProfile1Id = "DEG_1"
         val degProfile2Id = "DEG_2"
         dao.insertDegreeProfile(
-            DegreeProfileEntity(id = degProfile1Id, degreeName = "B.Tech Computer Science", institutionName = "National Institute of Technology", calculationFormulaString = "(CGPA * 9.5)")
+            DegreeProfileEntity(id = degProfile1Id, degreeName = "B.Tech Computer Science", institutionName = "National Institute of Technology", calculationFormulaString = "(CGPA * 9.5)", totalTargetCredits = 160)
         )
         dao.insertDegreeProfile(
-            DegreeProfileEntity(id = degProfile2Id, degreeName = "BS Data Science & AI", institutionName = "IIT Madras Online Program", calculationFormulaString = "(CGPA * 10)")
+            DegreeProfileEntity(id = degProfile2Id, degreeName = "BS Data Science & AI", institutionName = "IIT Madras Online Program", calculationFormulaString = "(CGPA * 10)", totalTargetCredits = 120)
         )
 
-        dao.insertSemesterGrade(SemesterGradeEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 1, sgpa = 9.1, totalCreditsEarned = 22))
-        dao.insertSemesterGrade(SemesterGradeEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 2, sgpa = 9.3, totalCreditsEarned = 24))
-        dao.insertSemesterGrade(SemesterGradeEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile2Id, semesterNumber = 1, sgpa = 8.8, totalCreditsEarned = 18))
+        // Seed Degree 1 - Semester 1
+        val sub1Id = UUID.randomUUID().toString()
+        val sub2Id = UUID.randomUUID().toString()
+        val sub3Id = UUID.randomUUID().toString()
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub1Id, degreeProfileId = degProfile1Id, semesterNumber = 1, subjectName = "Calculus & Linear Algebra", marksObtained = 92.0, maxMarks = 100.0, gradePoint = 10.0, credits = 4, subjectCode = "MA101"))
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub2Id, degreeProfileId = degProfile1Id, semesterNumber = 1, subjectName = "Engineering Physics & Lab", marksObtained = 88.0, maxMarks = 100.0, gradePoint = 9.0, credits = 4, subjectCode = "PH101"))
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub3Id, degreeProfileId = degProfile1Id, semesterNumber = 1, subjectName = "Programming in C", marksObtained = 95.0, maxMarks = 100.0, gradePoint = 10.0, credits = 4, subjectCode = "CS101"))
 
-        dao.insertSubjectMark(SubjectMarkEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 2, subjectName = "Data Structures", marksObtained = 94.0, maxMarks = 100.0, gradePoint = 10.0, credits = 4))
-        dao.insertSubjectMark(SubjectMarkEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 2, subjectName = "Discrete Mathematics", marksObtained = 88.0, maxMarks = 100.0, gradePoint = 9.0, credits = 4))
-        dao.insertSubjectMark(SubjectMarkEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 2, subjectName = "Digital Logic", marksObtained = 90.0, maxMarks = 100.0, gradePoint = 9.0, credits = 3))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub1Id, examName = "Internal Assessment 1", weightagePercent = 20.0, marksObtained = 19.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub1Id, examName = "Mid-Term Examination", weightagePercent = 30.0, marksObtained = 27.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub1Id, examName = "End-Semester Examination", weightagePercent = 50.0, marksObtained = 46.0, maxMarks = 50.0))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub2Id, examName = "Lab Practicals & Viva", weightagePercent = 20.0, marksObtained = 18.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub2Id, examName = "Mid-Term Examination", weightagePercent = 30.0, marksObtained = 26.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub2Id, examName = "End-Semester Examination", weightagePercent = 50.0, marksObtained = 44.0, maxMarks = 50.0))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub3Id, examName = "Coding Assignments", weightagePercent = 20.0, marksObtained = 20.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub3Id, examName = "Mid-Term Examination", weightagePercent = 30.0, marksObtained = 28.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub3Id, examName = "End-Semester Examination", weightagePercent = 50.0, marksObtained = 47.0, maxMarks = 50.0))
+
+        dao.insertSemesterGrade(SemesterGradeEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 1, sgpa = 9.67, totalCreditsEarned = 12))
+
+        // Seed Degree 1 - Semester 2
+        val sub4Id = UUID.randomUUID().toString()
+        val sub5Id = UUID.randomUUID().toString()
+        val sub6Id = UUID.randomUUID().toString()
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub4Id, degreeProfileId = degProfile1Id, semesterNumber = 2, subjectName = "Data Structures & Algorithms", marksObtained = 94.0, maxMarks = 100.0, gradePoint = 10.0, credits = 4, subjectCode = "CS201"))
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub5Id, degreeProfileId = degProfile1Id, semesterNumber = 2, subjectName = "Discrete Mathematics", marksObtained = 88.0, maxMarks = 100.0, gradePoint = 9.0, credits = 4, subjectCode = "MA201"))
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub6Id, degreeProfileId = degProfile1Id, semesterNumber = 2, subjectName = "Digital Logic Design", marksObtained = 90.0, maxMarks = 100.0, gradePoint = 9.0, credits = 3, subjectCode = "EC201"))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub4Id, examName = "Continuous Assessment", weightagePercent = 20.0, marksObtained = 19.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub4Id, examName = "Mid-Term Test", weightagePercent = 30.0, marksObtained = 28.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub4Id, examName = "End-Semester Final", weightagePercent = 50.0, marksObtained = 47.0, maxMarks = 50.0))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub5Id, examName = "Class Test & Quizzes", weightagePercent = 20.0, marksObtained = 17.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub5Id, examName = "Midterm Examination", weightagePercent = 30.0, marksObtained = 26.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub5Id, examName = "End-Semester Final", weightagePercent = 50.0, marksObtained = 45.0, maxMarks = 50.0))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub6Id, examName = "Lab Simulation & Viva", weightagePercent = 25.0, marksObtained = 24.0, maxMarks = 25.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub6Id, examName = "Mid-Semester Exam", weightagePercent = 25.0, marksObtained = 22.0, maxMarks = 25.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub6Id, examName = "End-Semester Theory", weightagePercent = 50.0, marksObtained = 44.0, maxMarks = 50.0))
+
+        dao.insertSemesterGrade(SemesterGradeEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile1Id, semesterNumber = 2, sgpa = 9.36, totalCreditsEarned = 11))
+
+        // Seed Degree 2 - Semester 1
+        val sub7Id = UUID.randomUUID().toString()
+        val sub8Id = UUID.randomUUID().toString()
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub7Id, degreeProfileId = degProfile2Id, semesterNumber = 1, subjectName = "Foundations of Data Science", marksObtained = 88.0, maxMarks = 100.0, gradePoint = 9.0, credits = 4, subjectCode = "DS101"))
+        dao.insertSubjectMark(SubjectMarkEntity(id = sub8Id, degreeProfileId = degProfile2Id, semesterNumber = 1, subjectName = "Linear Algebra & Probability", marksObtained = 86.0, maxMarks = 100.0, gradePoint = 9.0, credits = 4, subjectCode = "MA102"))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub7Id, examName = "Python Project & Lab", weightagePercent = 30.0, marksObtained = 28.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub7Id, examName = "Mid-Term Examination", weightagePercent = 20.0, marksObtained = 18.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub7Id, examName = "End-Semester Final", weightagePercent = 50.0, marksObtained = 42.0, maxMarks = 50.0))
+
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub8Id, examName = "Weekly Assignments", weightagePercent = 20.0, marksObtained = 18.0, maxMarks = 20.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub8Id, examName = "Mid-Semester Exam", weightagePercent = 30.0, marksObtained = 25.0, maxMarks = 30.0))
+        dao.insertSubjectExam(SubjectExamEntity(id = UUID.randomUUID().toString(), subjectMarkId = sub8Id, examName = "End-Semester Exam", weightagePercent = 50.0, marksObtained = 43.0, maxMarks = 50.0))
+
+        dao.insertSemesterGrade(SemesterGradeEntity(id = UUID.randomUUID().toString(), degreeProfileId = degProfile2Id, semesterNumber = 1, sgpa = 9.00, totalCreditsEarned = 8))
 
         // 5. Triple-Paper GATE Syllabus Tracker
         val gatePaper1Id = "GATE_CS"
@@ -138,71 +216,46 @@ object InitialDataSeeder {
         dao.insertGatePaper(GatePaperEntity(id = gatePaper2Id, paperCode = "DA", paperName = "Data Science & Artificial Intelligence"))
         dao.insertGatePaper(GatePaperEntity(id = gatePaper3Id, paperCode = "MA", paperName = "Engineering Mathematics & Stats"))
 
-        dao.insertGateTopic(
-            GateTopicEntity(
-                id = UUID.randomUUID().toString(),
-                paperId = gatePaper1Id,
-                subjectCategory = "Theory of Computation",
-                topicName = "Regular Expressions & DFA/NFA Equivalence",
-                status = "REVISING",
-                startDate = "12 Oct",
-                endDate = "18 Oct",
-                revisionCount = 3,
-                confidenceLevel = 80
-            )
-        )
-        dao.insertGateTopic(
-            GateTopicEntity(
-                id = UUID.randomUUID().toString(),
-                paperId = gatePaper1Id,
-                subjectCategory = "Theory of Computation",
-                topicName = "Turing Machines & Decidability (Halting Problem)",
-                status = "DOING",
-                startDate = "19 Oct",
-                endDate = "25 Oct",
-                revisionCount = 1,
-                confidenceLevel = 45 // weak topic flag
-            )
-        )
-        dao.insertGateTopic(
-            GateTopicEntity(
-                id = UUID.randomUUID().toString(),
-                paperId = gatePaper1Id,
-                subjectCategory = "Computer Networks",
-                topicName = "TCP Congestion Control & Window Scaling",
-                status = "REVISING",
-                startDate = "01 Oct",
-                endDate = "08 Oct",
-                revisionCount = 2,
-                confidenceLevel = 75
-            )
-        )
-        dao.insertGateTopic(
-            GateTopicEntity(
-                id = UUID.randomUUID().toString(),
-                paperId = gatePaper2Id,
-                subjectCategory = "Artificial Intelligence",
-                topicName = "Search Algorithms (A*, Heuristic Consistency)",
-                status = "DONE",
-                startDate = "05 Oct",
-                endDate = "10 Oct",
-                revisionCount = 4,
-                confidenceLevel = 90
-            )
-        )
-        dao.insertGateTopic(
-            GateTopicEntity(
-                id = UUID.randomUUID().toString(),
-                paperId = gatePaper2Id,
-                subjectCategory = "Machine Learning",
-                topicName = "Neural Networks Backpropagation Calculus",
-                status = "DOING",
-                startDate = "15 Oct",
-                endDate = "22 Oct",
-                revisionCount = 1,
-                confidenceLevel = 50
-            )
-        )
+        // GATE CS Subjects
+        val csSub1Id = UUID.randomUUID().toString()
+        val csSub2Id = UUID.randomUUID().toString()
+        val csSub3Id = UUID.randomUUID().toString()
+        dao.insertGateSubject(GateSubjectEntity(id = csSub1Id, paperId = gatePaper1Id, subjectName = "Theory of Computation", subjectCode = "CS-TOC", weightageMarks = 8))
+        dao.insertGateSubject(GateSubjectEntity(id = csSub2Id, paperId = gatePaper1Id, subjectName = "Operating Systems", subjectCode = "CS-OS", weightageMarks = 9))
+        dao.insertGateSubject(GateSubjectEntity(id = csSub3Id, paperId = gatePaper1Id, subjectName = "Computer Networks", subjectCode = "CS-CN", weightageMarks = 8))
+
+        // GATE CS Sub-Topics
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub1Id, subjectCategory = "Theory of Computation", topicName = "Regular Expressions & DFA/NFA Equivalence", status = "REVISING", weightage = "HARD", estimatedHours = 6, revisionCount = 3, confidenceLevel = 80))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub1Id, subjectCategory = "Theory of Computation", topicName = "Context-Free Grammars & Pushdown Automata", status = "DONE", weightage = "MEDIUM", estimatedHours = 5, revisionCount = 2, confidenceLevel = 85))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub1Id, subjectCategory = "Theory of Computation", topicName = "Turing Machines & Decidability (Halting Problem)", status = "DOING", weightage = "HARD", estimatedHours = 8, revisionCount = 1, confidenceLevel = 45))
+
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub2Id, subjectCategory = "Operating Systems", topicName = "Process Synchronization & Semaphores", status = "DONE", weightage = "HARD", estimatedHours = 6, revisionCount = 3, confidenceLevel = 90))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub2Id, subjectCategory = "Operating Systems", topicName = "Deadlock Avoidance & Banker's Algorithm", status = "REVISING", weightage = "MEDIUM", estimatedHours = 4, revisionCount = 2, confidenceLevel = 75))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub2Id, subjectCategory = "Operating Systems", topicName = "Virtual Memory & Demand Paging", status = "DOING", weightage = "HARD", estimatedHours = 7, revisionCount = 1, confidenceLevel = 55))
+
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub3Id, subjectCategory = "Computer Networks", topicName = "TCP Congestion Control & Window Scaling", status = "REVISING", weightage = "HARD", estimatedHours = 5, revisionCount = 2, confidenceLevel = 75))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper1Id, subjectId = csSub3Id, subjectCategory = "Computer Networks", topicName = "IP Addressing, Subnetting & CIDR", status = "DONE", weightage = "EASY", estimatedHours = 3, revisionCount = 4, confidenceLevel = 95))
+
+        // GATE DA Subjects
+        val daSub1Id = UUID.randomUUID().toString()
+        val daSub2Id = UUID.randomUUID().toString()
+        dao.insertGateSubject(GateSubjectEntity(id = daSub1Id, paperId = gatePaper2Id, subjectName = "Artificial Intelligence", subjectCode = "DA-AI", weightageMarks = 10))
+        dao.insertGateSubject(GateSubjectEntity(id = daSub2Id, paperId = gatePaper2Id, subjectName = "Machine Learning", subjectCode = "DA-ML", weightageMarks = 12))
+
+        // GATE DA Sub-Topics
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper2Id, subjectId = daSub1Id, subjectCategory = "Artificial Intelligence", topicName = "Search Algorithms (A*, Heuristic Consistency)", status = "DONE", weightage = "MEDIUM", estimatedHours = 5, revisionCount = 4, confidenceLevel = 90))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper2Id, subjectId = daSub1Id, subjectCategory = "Artificial Intelligence", topicName = "Adversarial Search & Minimax Alpha-Beta", status = "REVISING", weightage = "HARD", estimatedHours = 6, revisionCount = 2, confidenceLevel = 70))
+
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper2Id, subjectId = daSub2Id, subjectCategory = "Machine Learning", topicName = "Neural Networks Backpropagation Calculus", status = "DOING", weightage = "HARD", estimatedHours = 8, revisionCount = 1, confidenceLevel = 50))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper2Id, subjectId = daSub2Id, subjectCategory = "Machine Learning", topicName = "Support Vector Machines & Kernel Trick", status = "TODO", weightage = "HARD", estimatedHours = 7, revisionCount = 0, confidenceLevel = 45))
+
+        // GATE MA Subjects
+        val maSub1Id = UUID.randomUUID().toString()
+        dao.insertGateSubject(GateSubjectEntity(id = maSub1Id, paperId = gatePaper3Id, subjectName = "Linear Algebra", subjectCode = "MA-LA", weightageMarks = 8))
+
+        // GATE MA Sub-Topics
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper3Id, subjectId = maSub1Id, subjectCategory = "Linear Algebra", topicName = "Eigenvalues, Eigenvectors & Cayley-Hamilton", status = "DONE", weightage = "MEDIUM", estimatedHours = 5, revisionCount = 3, confidenceLevel = 85))
+        dao.insertGateTopic(GateTopicEntity(id = UUID.randomUUID().toString(), paperId = gatePaper3Id, subjectId = maSub1Id, subjectCategory = "Linear Algebra", topicName = "Vector Spaces, Basis & Dimension", status = "REVISING", weightage = "HARD", estimatedHours = 6, revisionCount = 2, confidenceLevel = 70))
 
         // 6. ESE UPSC Syllabus Tracker
         val sec1Id = UUID.randomUUID().toString()

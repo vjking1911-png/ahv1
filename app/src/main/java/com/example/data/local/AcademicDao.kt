@@ -95,6 +95,36 @@ interface AcademicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSubjectMark(mark: SubjectMarkEntity)
 
+    @Update
+    suspend fun updateSubjectMark(mark: SubjectMarkEntity)
+
+    @Query("DELETE FROM subject_marks WHERE id = :id")
+    suspend fun deleteSubjectMark(id: String)
+
+    @Query("DELETE FROM subject_marks WHERE degreeProfileId = :profileId AND semesterNumber = :semNumber")
+    suspend fun deleteSubjectMarksForSemester(profileId: String, semNumber: Int)
+
+    @Query("DELETE FROM semester_grades WHERE degreeProfileId = :profileId AND semesterNumber = :semNumber")
+    suspend fun deleteSemesterGrade(profileId: String, semNumber: Int)
+
+    @Query("SELECT * FROM subject_exams WHERE subjectMarkId = :subjectId")
+    fun getSubjectExams(subjectId: String): Flow<List<SubjectExamEntity>>
+
+    @Query("SELECT * FROM subject_exams")
+    fun getAllSubjectExams(): Flow<List<SubjectExamEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSubjectExam(exam: SubjectExamEntity)
+
+    @Update
+    suspend fun updateSubjectExam(exam: SubjectExamEntity)
+
+    @Query("DELETE FROM subject_exams WHERE id = :id")
+    suspend fun deleteSubjectExam(id: String)
+
+    @Query("DELETE FROM subject_exams WHERE subjectMarkId = :subjectId")
+    suspend fun deleteExamsForSubject(subjectId: String)
+
     // ==========================================
     // 5. Triple-Paper GATE Syllabus Tracker
     // ==========================================
@@ -127,6 +157,30 @@ interface AcademicDao {
 
     @Query("DELETE FROM gate_topics WHERE id = :id")
     suspend fun deleteGateTopic(id: String)
+
+    @Query("SELECT * FROM gate_subjects WHERE paperId = :paperId")
+    fun getGateSubjectsForPaper(paperId: String): Flow<List<GateSubjectEntity>>
+
+    @Query("SELECT * FROM gate_subjects")
+    fun getAllGateSubjects(): Flow<List<GateSubjectEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGateSubject(subject: GateSubjectEntity)
+
+    @Update
+    suspend fun updateGateSubject(subject: GateSubjectEntity)
+
+    @Query("DELETE FROM gate_subjects WHERE id = :id")
+    suspend fun deleteGateSubject(id: String)
+
+    @Query("DELETE FROM gate_topics WHERE subjectId = :subjectId")
+    suspend fun deleteGateTopicsForSubjectId(subjectId: String)
+
+    @Query("SELECT * FROM gate_topics WHERE subjectId = :subjectId")
+    fun getGateTopicsForSubject(subjectId: String): Flow<List<GateTopicEntity>>
+
+    @Query("UPDATE gate_topics SET status = :status WHERE id = :topicId")
+    suspend fun updateGateTopicStatus(topicId: String, status: String)
 
     @Query("UPDATE gate_topics SET revisionCount = revisionCount + 1 WHERE id = :topicId")
     suspend fun incrementGateRevision(topicId: String)

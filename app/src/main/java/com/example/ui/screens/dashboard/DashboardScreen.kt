@@ -165,7 +165,7 @@ fun DashboardScreen(
                         )
                         MetricCard(
                             title = "Academic Spend",
-                            value = "$${String.format("%.0f", totalExpense)}",
+                            value = "₹${String.format("%,.0f", totalExpense)}",
                             subtitle = "${expenses.size} items tracked",
                             icon = Icons.Default.AccountBalanceWallet,
                             accentColor = AccentGoldLight,

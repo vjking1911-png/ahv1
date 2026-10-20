@@ -42,6 +42,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _selectedDegreeProfileId = MutableStateFlow("DEG_1")
     val selectedDegreeProfileId = _selectedDegreeProfileId.asStateFlow()
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val semesterGrades = _selectedDegreeProfileId.flatMapLatest { profileId ->
+        repository.getSemesterGrades(profileId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val allSubjectMarks = _selectedDegreeProfileId.flatMapLatest { profileId ->
+        repository.getAllSubjectMarks(profileId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val allSubjectExams = repository.allSubjectExams.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _selectedSemesterNumber = MutableStateFlow(1)
+    val selectedSemesterNumber = _selectedSemesterNumber.asStateFlow()
+    fun setSelectedSemesterNumber(sem: Int) { _selectedSemesterNumber.value = sem }
+
     private val _sandboxFormula = MutableStateFlow("(CGPA * 9.5)")
     val sandboxFormula = _sandboxFormula.asStateFlow()
 
@@ -57,6 +73,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val gatePapers = repository.gatePapers.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _selectedGatePaperId = MutableStateFlow("GATE_CS")
     val selectedGatePaperId = _selectedGatePaperId.asStateFlow()
+    val allGateSubjects = repository.allGateSubjects.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val allGateTopics = repository.allGateTopics.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // 6. ESE UPSC Tracker
@@ -189,6 +206,157 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateDegreeTargetCredits(profileId: String, targetCredits: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val profile = degreeProfiles.value.find { it.id == profileId }
+            if (profile != null) {
+                repository.updateDegreeProfile(profile.copy(totalTargetCredits = targetCredits))
+            }
+        }
+    }
+
+    fun addSubjectMark(degreeProfileId: String, semesterNumber: Int, subjectName: String, subjectCode: String, credits: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val subject = SubjectMarkEntity(
+                degreeProfileId = degreeProfileId,
+                semesterNumber = semesterNumber,
+                subjectName = subjectName,
+                subjectCode = subjectCode,
+                credits = credits,
+                marksObtained = 0.0,
+                gradePoint = 0.0
+            )
+            repository.insertSubjectMark(subject)
+            recalculateSemesterSummary(degreeProfileId, semesterNumber)
+        }
+    }
+
+    fun updateSubjectMark(subjectId: String, subjectName: String, subjectCode: String, credits: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val current = allSubjectMarks.value.find { it.id == subjectId }
+            if (current != null) {
+                val updated = current.copy(
+                    subjectName = subjectName,
+                    subjectCode = subjectCode,
+                    credits = credits
+                )
+                repository.updateSubjectMark(updated)
+                recalculateSemesterSummary(updated.degreeProfileId, updated.semesterNumber)
+            }
+        }
+    }
+
+    fun deleteSubjectMark(subjectId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val current = allSubjectMarks.value.find { it.id == subjectId }
+            repository.deleteSubjectMark(subjectId)
+            if (current != null) {
+                recalculateSemesterSummary(current.degreeProfileId, current.semesterNumber)
+            }
+        }
+    }
+
+    fun addSubjectExam(subjectMarkId: String, examName: String, weightagePercent: Double, marksObtained: Double, maxMarks: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val exam = SubjectExamEntity(
+                subjectMarkId = subjectMarkId,
+                examName = examName,
+                weightagePercent = weightagePercent,
+                marksObtained = marksObtained,
+                maxMarks = if (maxMarks > 0) maxMarks else 100.0
+            )
+            repository.insertSubjectExam(exam)
+            recalculateSubjectAndSemester(subjectMarkId)
+        }
+    }
+
+    fun updateSubjectExam(examId: String, examName: String, weightagePercent: Double, marksObtained: Double, maxMarks: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val current = allSubjectExams.value.find { it.id == examId }
+            if (current != null) {
+                val updated = current.copy(
+                    examName = examName,
+                    weightagePercent = weightagePercent,
+                    marksObtained = marksObtained,
+                    maxMarks = if (maxMarks > 0) maxMarks else 100.0
+                )
+                repository.updateSubjectExam(updated)
+                recalculateSubjectAndSemester(current.subjectMarkId)
+            }
+        }
+    }
+
+    fun deleteSubjectExam(examId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val current = allSubjectExams.value.find { it.id == examId }
+            if (current != null) {
+                val subjectId = current.subjectMarkId
+                repository.deleteSubjectExam(examId)
+                recalculateSubjectAndSemester(subjectId)
+            }
+        }
+    }
+
+    fun addSemester(degreeProfileId: String, semesterNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertSemesterGrade(
+                SemesterGradeEntity(
+                    degreeProfileId = degreeProfileId,
+                    semesterNumber = semesterNumber,
+                    sgpa = 0.0,
+                    totalCreditsEarned = 0
+                )
+            )
+            _selectedSemesterNumber.value = semesterNumber
+        }
+    }
+
+    fun deleteSemester(degreeProfileId: String, semesterNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteSemesterGrade(degreeProfileId, semesterNumber)
+            val remaining = semesterGrades.value.filter { it.semesterNumber != semesterNumber }.map { it.semesterNumber }
+            _selectedSemesterNumber.value = remaining.firstOrNull() ?: 1
+        }
+    }
+
+    private suspend fun recalculateSubjectAndSemester(subjectMarkId: String) {
+        val subject = allSubjectMarks.value.find { it.id == subjectMarkId } ?: return
+        val exams = repository.getSubjectExams(subjectMarkId).firstOrNull() ?: emptyList()
+        val totalContributedScore = exams.sumOf { exam ->
+            if (exam.maxMarks > 0) (exam.marksObtained / exam.maxMarks) * exam.weightagePercent else 0.0
+        }
+        val finalSubjectScore = totalContributedScore.coerceIn(0.0, 100.0)
+        val gradePoint = when {
+            finalSubjectScore >= 90.0 -> 10.0
+            finalSubjectScore >= 80.0 -> 9.0
+            finalSubjectScore >= 70.0 -> 8.0
+            finalSubjectScore >= 60.0 -> 7.0
+            finalSubjectScore >= 50.0 -> 6.0
+            finalSubjectScore >= 40.0 -> 5.0
+            else -> 0.0
+        }
+        val updatedSubject = subject.copy(marksObtained = finalSubjectScore, gradePoint = gradePoint)
+        repository.updateSubjectMark(updatedSubject)
+        recalculateSemesterSummary(subject.degreeProfileId, subject.semesterNumber)
+    }
+
+    private suspend fun recalculateSemesterSummary(degreeProfileId: String, semesterNumber: Int) {
+        val subjectsInSem = repository.getSubjectMarks(degreeProfileId, semesterNumber).firstOrNull() ?: emptyList()
+        val totalCredits = subjectsInSem.sumOf { it.credits }
+        val weightedGpSum = subjectsInSem.sumOf { it.gradePoint * it.credits }
+        val sgpa = if (totalCredits > 0) weightedGpSum / totalCredits.toDouble() else 0.0
+
+        val existingGrade = semesterGrades.value.find { it.degreeProfileId == degreeProfileId && it.semesterNumber == semesterNumber }
+        val gradeEntity = existingGrade?.copy(sgpa = sgpa, totalCreditsEarned = totalCredits)
+            ?: SemesterGradeEntity(
+                degreeProfileId = degreeProfileId,
+                semesterNumber = semesterNumber,
+                sgpa = sgpa,
+                totalCreditsEarned = totalCredits
+            )
+        repository.insertSemesterGrade(gradeEntity)
+    }
+
     // GATE
     fun incrementGateRevision(topicId: String) {
         viewModelScope.launch(Dispatchers.IO) { repository.incrementGateRevision(topicId) }
@@ -196,6 +364,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateGateConfidence(topicId: String, confidence: Int) {
         viewModelScope.launch(Dispatchers.IO) { repository.updateGateConfidence(topicId, confidence) }
+    }
+
+    fun updateGateTopicStatus(topicId: String, status: String) {
+        viewModelScope.launch(Dispatchers.IO) { repository.updateGateTopicStatus(topicId, status) }
     }
 
     fun addGatePaper(code: String, name: String) {
@@ -222,16 +394,64 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addGateSubject(paperId: String, name: String, code: String = "", marks: Int = 10) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertGateSubject(
+                GateSubjectEntity(
+                    paperId = paperId,
+                    subjectName = name,
+                    subjectCode = code,
+                    weightageMarks = marks
+                )
+            )
+        }
+    }
+
+    fun updateGateSubject(subject: GateSubjectEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateGateSubject(subject)
+        }
+    }
+
+    fun deleteGateSubject(subjectId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteGateSubject(subjectId)
+        }
+    }
+
     fun deleteGateTopic(topicId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteGateTopic(topicId)
         }
     }
 
-    fun addGateTopic(paperId: String, category: String, topicName: String) {
+    fun updateGateTopic(topic: GateTopicEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateGateTopic(topic)
+        }
+    }
+
+    fun addGateTopic(
+        paperId: String,
+        subjectId: String = "",
+        category: String,
+        topicName: String,
+        weightage: String = "MEDIUM",
+        estimatedHours: Int = 4,
+        confidenceLevel: Int = 50
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertGateTopic(
-                GateTopicEntity(paperId = paperId, subjectCategory = category, topicName = topicName)
+                GateTopicEntity(
+                    paperId = paperId,
+                    subjectId = subjectId,
+                    subjectCategory = category,
+                    topicName = topicName,
+                    weightage = weightage,
+                    estimatedHours = estimatedHours,
+                    confidenceLevel = confidenceLevel,
+                    status = "TODO"
+                )
             )
         }
     }

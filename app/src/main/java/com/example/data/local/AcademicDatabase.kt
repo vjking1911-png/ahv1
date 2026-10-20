@@ -30,9 +30,11 @@ import kotlinx.coroutines.launch
         AcademicMilestoneEntity::class,
         FutureCourseEntity::class,
         CareerOptionEntity::class,
-        ResumeProfileEntity::class
+        ResumeProfileEntity::class,
+        SubjectExamEntity::class,
+        GateSubjectEntity::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class AcademicDatabase : RoomDatabase() {
@@ -49,7 +51,7 @@ abstract class AcademicDatabase : RoomDatabase() {
                     AcademicDatabase::class.java,
                     "academic_hub.db"
                 ).addCallback(AcademicDatabaseCallback(scope, context))
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
                 instance
