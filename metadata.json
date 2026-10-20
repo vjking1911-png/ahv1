@@ -1,0 +1,6 @@
+{
+  "name": "Academic Hub",
+  "description": "Comprehensive offline academic command center featuring 13 modular trackers for dual college syllabi, results formula engine, GATE & UPSC prep, timetables, expenses, certificates, milestones, and resume builder.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
